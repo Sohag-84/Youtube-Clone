@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:youtube_clone/features/auth/login_page.dart';
+import 'package:youtube_clone/features/auth/pages/login_page.dart';
+import 'package:youtube_clone/home_page.dart';
 
 import 'firebase_options.dart';
 
@@ -19,9 +21,18 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const LoginPage();
+          } else {
+            return const HomePage();
+          }
+        },
+      ),
     );
   }
 }
