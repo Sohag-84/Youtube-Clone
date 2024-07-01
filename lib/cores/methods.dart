@@ -1,6 +1,7 @@
-// ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 void showErrorSnackBar(String message, context) =>
     ScaffoldMessenger.of(context).showSnackBar(
@@ -9,3 +10,14 @@ void showErrorSnackBar(String message, context) =>
         duration: const Duration(seconds: 1),
       ),
     );
+
+///for pick video
+pickVideo() async {
+  XFile? file = await ImagePicker().pickVideo(
+    source: ImageSource.gallery,
+  );
+  if (file != null) {
+    File videoPath = File(file.path);
+    return videoPath;
+  }
+}
