@@ -1,16 +1,48 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youtube_clone/cores/widgets/flat_button.dart';
+import 'package:youtube_clone/features/auth/repository/user_data_service.dart';
 
-class UsernamePage extends StatefulWidget {
-  const UsernamePage({super.key});
+class UsernamePage extends ConsumerStatefulWidget {
+  final String displayname;
+  final String profilePic;
+  final String email;
+  const UsernamePage({
+    super.key,
+    required this.displayname,
+    required this.profilePic,
+    required this.email,
+  });
 
   @override
-  State<UsernamePage> createState() => _UsernamePageState();
+  ConsumerState<UsernamePage> createState() => _UsernamePageState();
 }
 
-class _UsernamePageState extends State<UsernamePage> {
+class _UsernamePageState extends ConsumerState<UsernamePage> {
   final formKey = GlobalKey<FormState>();
   final usernameController = TextEditingController();
+  bool isValidate = true;
+
+  void validateUsername() async {
+    final userMap = await FirebaseFirestore.instance.collection('users').get();
+
+    final users = userMap.docs.map((user) => user).toList();
+
+    String? targetedUser;
+    for (var user in users) {
+      if (usernameController.text == user.data()['username']) {
+        targetedUser = user.data()['username'];
+        isValidate = false;
+        setState(() {});
+      }
+      if (usernameController.text != targetedUser) {
+        isValidate = true;
+        setState(() {});
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,9 +67,18 @@ class _UsernamePageState extends State<UsernamePage> {
                 key: formKey,
                 child: TextFormField(
                   controller: usernameController,
+                  onChanged: (username) {
+                    validateUsername();
+                  },
+                  autovalidateMode: AutovalidateMode.always,
+                  validator: (username) {
+                    return isValidate ? null : "username allready taken";
+                  },
                   decoration: InputDecoration(
-                    suffixIcon: const Icon(Icons.verified_user_rounded),
-                    suffixIconColor: Colors.green,
+                    suffixIcon: Icon(
+                      isValidate ? Icons.verified_user_rounded : Icons.cancel,
+                    ),
+                    suffixIconColor: isValidate ? Colors.green : Colors.red,
                     hintText: "Insert username",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -60,8 +101,21 @@ class _UsernamePageState extends State<UsernamePage> {
               padding: const EdgeInsets.only(bottom: 30.0, left: 10, right: 10),
               child: FlatButton(
                 text: "CONTINUE",
-                onPressed: () {},
-                colour: Colors.green,
+                onPressed: () async {
+                  ///add user data inside database
+                  isValidate
+                      ? await ref
+                          .read(userDataServiceProvider)
+                          .addUserDataToFirestore(
+                            displayName: widget.displayname,
+                            username: usernameController.text,
+                            email: widget.email,
+                            description: "",
+                            profilePic: widget.profilePic,
+                          )
+                      : null;
+                },
+                colour: isValidate ? Colors.green : Colors.green.shade100,
               ),
             ),
           ],
