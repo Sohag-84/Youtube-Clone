@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SettingsDialog extends StatefulWidget {
   final String identifier;
@@ -45,14 +46,23 @@ class _SettingsDialogState extends State<SettingsDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context);
+          },
           child: const Text(
             "CANCEL",
             style: TextStyle(color: Colors.black),
           ),
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: () {
+            if (controller.text.trim().isNotEmpty) {
+              widget.onSave!(controller.text);
+              Navigator.pop(context);
+            } else {
+              Fluttertoast.showToast(msg: "Field can't be empty");
+            }
+          },
           child: const Text(
             "SAVE",
             style: TextStyle(color: Colors.black),
