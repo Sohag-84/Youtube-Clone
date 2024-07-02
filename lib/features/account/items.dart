@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_clone/cores/widgets/image_item.dart';
+import 'package:youtube_clone/features/channel/my%20channel/pages/my_channel_settings.dart';
 
 class Items extends StatelessWidget {
   const Items({super.key});
@@ -83,7 +84,14 @@ class Items extends StatelessWidget {
             height: 33,
             child: ImageItem(
               imageName: "settings.png",
-              itemClicked: () {},
+              itemClicked: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MyChannelSettings(),
+                  ),
+                );
+              },
               itemText: "Settings",
               haveColor: false,
             ),

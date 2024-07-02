@@ -20,19 +20,21 @@ class SettingsItem extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                identifier,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  identifier,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 15,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(value),
-            ],
+                const SizedBox(height: 4),
+                Text(value, maxLines: 2, overflow: TextOverflow.ellipsis),
+              ],
+            ),
           ),
           GestureDetector(
             onTap: onPressed,
