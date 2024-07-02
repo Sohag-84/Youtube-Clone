@@ -4,8 +4,8 @@ import 'package:youtube_clone/cores/screens/error_page.dart';
 import 'package:youtube_clone/cores/screens/loader.dart';
 import 'package:youtube_clone/cores/widgets/image_button.dart';
 import 'package:youtube_clone/features/account/account_page.dart';
-import 'package:youtube_clone/features/auth/provider/user_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:youtube_clone/features/auth/provider/user_provider.dart';
 import 'package:youtube_clone/features/content/bottom_navigation.dart';
 import 'package:youtube_clone/features/upload/upload_bottom_sheet.dart';
 import 'package:youtube_clone/pages_list.dart';
@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Consumer(
                   builder: (context, ref, child) {
-                    return ref.watch(currentUserProvider).when(
+                    return ref.watch(currentUserDataProvider).when(
                           data: (currentUser) => Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: GestureDetector(

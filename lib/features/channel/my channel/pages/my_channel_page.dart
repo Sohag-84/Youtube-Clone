@@ -13,7 +13,7 @@ class MyChannelPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(currentUserProvider).when(
+    return ref.watch(currentUserDataProvider).when(
           data: (currentUser) {
             return DefaultTabController(
               length: 7,

@@ -20,12 +20,12 @@ class _MyChannelSettingsState extends ConsumerState<MyChannelSettings> {
   bool isSwitched = false;
 
   Future<void> _refreshData() async {
-    return await ref.refresh(currentUserProvider);
+    return await ref.refresh(currentUserDataProvider);
   }
 
   @override
   Widget build(BuildContext context) {
-    return ref.watch(currentUserProvider).when(
+    return ref.watch(currentUserDataProvider).when(
           data: (currentUser) => Scaffold(
             body: SafeArea(
               child: RefreshIndicator(
