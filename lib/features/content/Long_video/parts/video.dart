@@ -13,6 +13,8 @@ import 'package:youtube_clone/features/content/Long_video/parts/post.dart';
 import 'package:youtube_clone/features/content/Long_video/widgets/video_externel_buttons.dart';
 import 'package:youtube_clone/features/upload/long%20video/video_model.dart';
 
+import '../../comment/comment_sheet.dart';
+
 class Video extends ConsumerStatefulWidget {
   final VideoModel video;
   const Video({Key? key, required this.video}) : super(key: key);
@@ -339,6 +341,28 @@ class _VideoState extends ConsumerState<Video> {
               ),
             ),
             const SizedBox(height: 10),
+
+            ///comment box
+            GestureDetector(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) => const CommentSheet(),
+                );
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 12,
+                ),
+                height: 45,
+                width: 200,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+              ),
+            ),
 
             ///show all the video of this user
             StreamBuilder(
