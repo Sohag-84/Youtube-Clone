@@ -1,20 +1,27 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_clone/cores/colors.dart';
+import 'package:youtube_clone/cores/screens/error_page.dart';
 import 'package:youtube_clone/cores/screens/loader.dart';
 import 'package:youtube_clone/cores/widgets/flat_button.dart';
+import 'package:youtube_clone/features/auth/model/user_model.dart';
+import 'package:youtube_clone/features/auth/provider/user_provider.dart';
+import 'package:youtube_clone/features/content/Long_video/parts/post.dart';
 import 'package:youtube_clone/features/content/Long_video/widgets/video_externel_buttons.dart';
 import 'package:youtube_clone/features/upload/long%20video/video_model.dart';
 
-class Video extends StatefulWidget {
+class Video extends ConsumerStatefulWidget {
   final VideoModel video;
   const Video({Key? key, required this.video}) : super(key: key);
 
   @override
-  State<Video> createState() => _VideoState();
+  ConsumerState<Video> createState() => _VideoState();
 }
 
-class _VideoState extends State<Video> {
+class _VideoState extends ConsumerState<Video> {
   late VideoPlayerController _controller;
 
   bool isShowIcons = false;
@@ -64,6 +71,8 @@ class _VideoState extends State<Video> {
 
   @override
   Widget build(BuildContext context) {
+    final AsyncValue<UserModel> userModel =
+        ref.watch(anyUserDataProvider(widget.video.userId));
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.grey,
@@ -224,12 +233,14 @@ class _VideoState extends State<Video> {
               ),
               child: Row(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 20,
                     backgroundColor: Colors.grey,
+                    backgroundImage:
+                        CachedNetworkImageProvider(userModel.value!.profilePic),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.only(
+                  Padding(
+                    padding: const EdgeInsets.only(
                       left: 5,
                       right: 5,
                     ),
@@ -237,15 +248,17 @@ class _VideoState extends State<Video> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Injamul Haq Sohag",
-                          style: TextStyle(
+                          userModel.value!.displayName,
+                          style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         Text(
-                          "1 Subscriptions",
-                          style: TextStyle(
+                          userModel.value!.subscriptions.isEmpty
+                              ? "No subscription"
+                              : "${userModel.value!.subscriptions.length} Subscriptions",
+                          style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
                           ),
@@ -324,6 +337,36 @@ class _VideoState extends State<Video> {
                   ],
                 ),
               ),
+            ),
+            const SizedBox(height: 10),
+
+            ///show all the video of this user
+            StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('videos')
+                  .where("videoId", isNotEqualTo: widget.video.videoId)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData || snapshot.data == null) {
+                  return const ErrorPage();
+                } else if (snapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return const Loader();
+                } else {
+                  final videoMaps = snapshot.data!.docs;
+                  final videos = videoMaps
+                      .map((video) => VideoModel.fromMap(video.data()))
+                      .toList();
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: videos.length,
+                    itemBuilder: (context, index) {
+                      return Post(video: videos[index]);
+                    },
+                  );
+                }
+              },
             ),
           ],
         ),
