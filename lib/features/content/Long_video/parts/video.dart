@@ -4,9 +4,11 @@ import 'package:youtube_clone/cores/colors.dart';
 import 'package:youtube_clone/cores/screens/loader.dart';
 import 'package:youtube_clone/cores/widgets/flat_button.dart';
 import 'package:youtube_clone/features/content/Long_video/widgets/video_externel_buttons.dart';
+import 'package:youtube_clone/features/upload/long%20video/video_model.dart';
 
 class Video extends StatefulWidget {
-  const Video({Key? key}) : super(key: key);
+  final VideoModel video;
+  const Video({Key? key, required this.video}) : super(key: key);
 
   @override
   State<Video> createState() => _VideoState();
@@ -21,11 +23,11 @@ class _VideoState extends State<Video> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.networkUrl(Uri.parse(
-        'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4'))
-      ..initialize().then((_) {
-        setState(() {});
-      });
+    _controller =
+        VideoPlayerController.networkUrl(Uri.parse(widget.video.videoUrl))
+          ..initialize().then((_) {
+            setState(() {});
+          });
   }
 
   toggleVideoPlayer() async {
@@ -67,10 +69,10 @@ class _VideoState extends State<Video> {
         backgroundColor: Colors.grey,
         elevation: 0,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(176),
+          preferredSize: const Size.fromHeight(200),
           child: _controller.value.isInitialized
-              ? AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
+              ? SizedBox(
+                  height: 200,
                   child: GestureDetector(
                     onTap: isShowIcons
                         ? () {
@@ -83,7 +85,6 @@ class _VideoState extends State<Video> {
                           },
                     child: Stack(
                       children: [
-                        /// Check if the controller is initialized
                         VideoPlayer(_controller),
 
                         ///video play icon
@@ -172,13 +173,13 @@ class _VideoState extends State<Video> {
         child: ListView(
           children: [
             /// Video title
-            const Padding(
-              padding: EdgeInsets.only(left: 12.0, top: 4),
+            Padding(
+              padding: const EdgeInsets.only(left: 12.0, top: 4),
               child: Text(
-                "How to learn Flutter quickly",
+                widget.video.title,
                 overflow: TextOverflow.ellipsis,
                 softWrap: true,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w500,
                 ),
@@ -186,21 +187,23 @@ class _VideoState extends State<Video> {
             ),
 
             /// View & time count
-            const Padding(
-              padding: EdgeInsets.only(left: 7, top: 5),
+            Padding(
+              padding: const EdgeInsets.only(left: 7, top: 5),
               child: Row(
                 children: [
                   Padding(
-                    padding: EdgeInsets.only(left: 4, right: 8),
+                    padding: const EdgeInsets.only(left: 4, right: 8),
                     child: Text(
-                      "No view",
-                      style: TextStyle(
+                      widget.video.views == 0
+                          ? "No view"
+                          : "${widget.video.views} views",
+                      style: const TextStyle(
                         fontSize: 13.4,
                         color: Color(0xff5F5F5F),
                       ),
                     ),
                   ),
-                  Padding(
+                  const Padding(
                     padding: EdgeInsets.only(left: 4, right: 8),
                     child: Text(
                       "5 minutes ago",

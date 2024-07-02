@@ -23,7 +23,7 @@ class Post extends ConsumerWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const Video(),
+            builder: (context) => Video(video: video),
           ),
         );
       },
