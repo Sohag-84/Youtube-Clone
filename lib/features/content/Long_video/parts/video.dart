@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_clone/cores/colors.dart';
 import 'package:youtube_clone/cores/screens/loader.dart';
@@ -16,6 +15,9 @@ class Video extends StatefulWidget {
 class _VideoState extends State<Video> {
   late VideoPlayerController _controller;
 
+  bool isShowIcons = false;
+  bool isPlaying = false;
+
   @override
   void initState() {
     super.initState();
@@ -24,6 +26,20 @@ class _VideoState extends State<Video> {
       ..initialize().then((_) {
         setState(() {});
       });
+  }
+
+  toggleVideoPlayer() async {
+    if (_controller.value.isPlaying) {
+      ///pause the video
+      await _controller.pause();
+      isPlaying = false;
+      setState(() {});
+    } else {
+      ///play the video
+      await _controller.play();
+      isPlaying = true;
+      setState(() {});
+    }
   }
 
   @override
@@ -41,7 +57,15 @@ class _VideoState extends State<Video> {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(176),
           child: GestureDetector(
-            onTap: () {},
+            onTap: isShowIcons
+                ? () {
+                    isShowIcons = false;
+                    setState(() {});
+                  }
+                : () {
+                    isShowIcons = true;
+                    setState(() {});
+                  },
             child: Stack(
               children: [
                 /// Check if the controller is initialized
@@ -55,17 +79,65 @@ class _VideoState extends State<Video> {
                     height: 176,
                     child: Loader(),
                   ),
-                Positioned(
-                  left: 182,
-                  top: 87,
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: SizedBox(
-                      height: 50,
-                      child: Container(),
-                    ),
-                  ),
-                ),
+
+                ///video play icon
+                isShowIcons
+                    ? Positioned(
+                        left: 150,
+                        top: 80,
+                        right: 150,
+                        bottom: 80,
+                        child: GestureDetector(
+                          onTap: toggleVideoPlayer,
+                          child: SizedBox(
+                            height: 50,
+                            child: Image.asset(
+                              'assets/images/play.png',
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      )
+                    : const SizedBox(),
+
+                ///video go back icon
+                isShowIcons
+                    ? Positioned(
+                        left: 40,
+                        top: 80,
+                        bottom: 80,
+                        child: GestureDetector(
+                          onTap: () {},
+                          child: SizedBox(
+                            height: 50,
+                            child: Image.asset(
+                              'assets/images/go_back_final.png',
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      )
+                    : const SizedBox(),
+
+                ///video go ahead icon
+                isShowIcons
+                    ? Positioned(
+                        right: 40,
+                        top: 80,
+                        bottom: 80,
+                        child: GestureDetector(
+                          onTap: () {},
+                          child: SizedBox(
+                            height: 50,
+                            child: Image.asset(
+                              'assets/images/go ahead final.png',
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      )
+                    : const SizedBox(),
+
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: SizedBox(
@@ -132,7 +204,7 @@ class _VideoState extends State<Video> {
               child: Row(
                 children: [
                   const CircleAvatar(
-                    radius: 14,
+                    radius: 20,
                     backgroundColor: Colors.grey,
                   ),
                   const Padding(
@@ -140,20 +212,24 @@ class _VideoState extends State<Video> {
                       left: 5,
                       right: 5,
                     ),
-                    child: Text(
-                      "Injamul Haq Sohag",
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  const Gap(5),
-                  const Text(
-                    "1 Subscriber",
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Injamul Haq Sohag",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          "1 Subscriptions",
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const Spacer(),
