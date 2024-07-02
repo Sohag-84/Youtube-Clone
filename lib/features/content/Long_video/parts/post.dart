@@ -6,6 +6,7 @@ import 'package:youtube_clone/cores/screens/error_page.dart';
 import 'package:youtube_clone/cores/screens/loader.dart';
 import 'package:youtube_clone/features/auth/model/user_model.dart';
 import 'package:youtube_clone/features/auth/provider/user_provider.dart';
+import 'package:youtube_clone/features/content/Long_video/parts/video.dart';
 import 'package:youtube_clone/features/upload/long%20video/video_model.dart';
 
 class Post extends ConsumerWidget {
@@ -17,67 +18,78 @@ class Post extends ConsumerWidget {
     final AsyncValue<UserModel> userModel =
         ref.watch(anyUserDataProvider(video.userId));
 
-    return Column(
-      children: [
-        /// thumbnail image
-        CachedNetworkImage(
-          height: 200,
-          width: double.infinity,
-          fit: BoxFit.cover,
-          imageUrl: video.thumbnail,
-          placeholder: (context, url) => const Loader(),
-          errorWidget: (context, url, error) => const Icon(Icons.error),
-        ),
-
-        /// profile image, video title & delete video
-        userModel.when(
-          data: (user) => Row(
-            children: [
-              /// profile image
-              Padding(
-                padding: const EdgeInsets.only(left: 5.0),
-                child: CircleAvatar(
-                  radius: 20,
-                  backgroundColor: Colors.grey,
-                  backgroundImage: CachedNetworkImageProvider(user.profilePic),
-                ),
-              ),
-              const Gap(3),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      video.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      "${user.displayName}  ${video.views == 0 ? "No views" : video.views}  a moment ago",
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.blueGrey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.more_vert,
-                ),
-              ),
-            ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const Video(),
           ),
-          loading: () => const Loader(),
-          error: (err, stack) => const ErrorPage(),
-        ),
-        const Gap(15),
-      ],
+        );
+      },
+      child: Column(
+        children: [
+          /// thumbnail image
+          CachedNetworkImage(
+            height: 200,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            imageUrl: video.thumbnail,
+            placeholder: (context, url) => const Loader(),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+          ),
+
+          /// profile image, video title & delete video
+          userModel.when(
+            data: (user) => Row(
+              children: [
+                /// profile image
+                Padding(
+                  padding: const EdgeInsets.only(left: 5.0),
+                  child: CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Colors.grey,
+                    backgroundImage:
+                        CachedNetworkImageProvider(user.profilePic),
+                  ),
+                ),
+                const Gap(3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        video.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "${user.displayName}  ${video.views == 0 ? "No views" : video.views}  a moment ago",
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.blueGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.more_vert,
+                  ),
+                ),
+              ],
+            ),
+            loading: () => const Loader(),
+            error: (err, stack) => const ErrorPage(),
+          ),
+          const Gap(15),
+        ],
+      ),
     );
   }
 }
