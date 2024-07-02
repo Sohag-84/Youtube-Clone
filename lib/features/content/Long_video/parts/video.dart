@@ -42,6 +42,18 @@ class _VideoState extends State<Video> {
     }
   }
 
+  goBackward() {
+    Duration position = _controller.value.position;
+    position = position - const Duration(seconds: 2);
+    _controller.seekTo(position);
+  }
+
+  goForward() {
+    Duration position = _controller.value.position;
+    position = position + const Duration(seconds: 2);
+    _controller.seekTo(position);
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -56,98 +68,104 @@ class _VideoState extends State<Video> {
         elevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(176),
-          child: GestureDetector(
-            onTap: isShowIcons
-                ? () {
-                    isShowIcons = false;
-                    setState(() {});
-                  }
-                : () {
-                    isShowIcons = true;
-                    setState(() {});
-                  },
-            child: Stack(
-              children: [
-                /// Check if the controller is initialized
-                if (_controller.value.isInitialized)
-                  AspectRatio(
-                    aspectRatio: _controller.value.aspectRatio,
-                    child: VideoPlayer(_controller),
-                  )
-                else
-                  const SizedBox(
-                    height: 176,
-                    child: Loader(),
+          child: _controller.value.isInitialized
+              ? AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  child: GestureDetector(
+                    onTap: isShowIcons
+                        ? () {
+                            isShowIcons = false;
+                            setState(() {});
+                          }
+                        : () {
+                            isShowIcons = true;
+                            setState(() {});
+                          },
+                    child: Stack(
+                      children: [
+                        /// Check if the controller is initialized
+                        VideoPlayer(_controller),
+
+                        ///video play icon
+                        isShowIcons
+                            ? Positioned(
+                                left: 150,
+                                top: 80,
+                                right: 150,
+                                bottom: 80,
+                                child: GestureDetector(
+                                  onTap: toggleVideoPlayer,
+                                  child: SizedBox(
+                                    height: 50,
+                                    child: Image.asset(
+                                      'assets/images/${isPlaying ? "pause" : "play"}.png',
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : const SizedBox(),
+
+                        ///video go back icon
+                        isShowIcons
+                            ? Positioned(
+                                left: 40,
+                                top: 80,
+                                bottom: 80,
+                                child: GestureDetector(
+                                  onTap: goBackward,
+                                  child: SizedBox(
+                                    height: 50,
+                                    child: Image.asset(
+                                      'assets/images/go_back_final.png',
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : const SizedBox(),
+
+                        ///video go ahead icon
+                        isShowIcons
+                            ? Positioned(
+                                right: 40,
+                                top: 80,
+                                bottom: 80,
+                                child: GestureDetector(
+                                  onTap: goForward,
+                                  child: SizedBox(
+                                    height: 50,
+                                    child: Image.asset(
+                                      'assets/images/go ahead final.png',
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : const SizedBox(),
+
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: SizedBox(
+                            height: 7.5,
+                            child: VideoProgressIndicator(
+                              _controller,
+                              allowScrubbing: true,
+                              colors: const VideoProgressColors(
+                                playedColor: Colors.red,
+                                bufferedColor: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-
-                ///video play icon
-                isShowIcons
-                    ? Positioned(
-                        left: 150,
-                        top: 80,
-                        right: 150,
-                        bottom: 80,
-                        child: GestureDetector(
-                          onTap: toggleVideoPlayer,
-                          child: SizedBox(
-                            height: 50,
-                            child: Image.asset(
-                              'assets/images/play.png',
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      )
-                    : const SizedBox(),
-
-                ///video go back icon
-                isShowIcons
-                    ? Positioned(
-                        left: 40,
-                        top: 80,
-                        bottom: 80,
-                        child: GestureDetector(
-                          onTap: () {},
-                          child: SizedBox(
-                            height: 50,
-                            child: Image.asset(
-                              'assets/images/go_back_final.png',
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      )
-                    : const SizedBox(),
-
-                ///video go ahead icon
-                isShowIcons
-                    ? Positioned(
-                        right: 40,
-                        top: 80,
-                        bottom: 80,
-                        child: GestureDetector(
-                          onTap: () {},
-                          child: SizedBox(
-                            height: 50,
-                            child: Image.asset(
-                              'assets/images/go ahead final.png',
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      )
-                    : const SizedBox(),
-
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: SizedBox(
-                    height: 7.5,
-                    child: Container(),
-                  ),
+                )
+              : const SizedBox(
+                  height: 176,
+                  child: Loader(),
                 ),
-              ],
-            ),
-          ),
         ),
       ),
       body: SafeArea(
