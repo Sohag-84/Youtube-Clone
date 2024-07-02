@@ -1,8 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:youtube_clone/features/upload/long%20video/video_details_page.dart';
 
 void showErrorSnackBar(String message, context) =>
     ScaffoldMessenger.of(context).showSnackBar(
@@ -13,13 +16,20 @@ void showErrorSnackBar(String message, context) =>
     );
 
 ///for pick video
-pickVideo() async {
+Future pickVideo({required BuildContext context}) async {
   XFile? file = await ImagePicker().pickVideo(
     source: ImageSource.gallery,
   );
   if (file != null) {
     File videoPath = File(file.path);
-    return videoPath;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VideoDetailsPage(
+          video: videoPath,
+        ),
+      ),
+    );
   }
 }
 
@@ -31,13 +41,17 @@ Future<File?> pickImage() async {
   if (file != null) {
     File imagePath = File(file.path);
     return imagePath;
-  }else{
+  } else {
     return null;
   }
 }
 
 //for store file in firebase storage
-putFileInStorage(file, number, fileType) async {
+Future<String> putFileInStorage({
+  required file,
+  required number,
+  required fileType,
+}) async {
   final ref = FirebaseStorage.instance.ref().child("$fileType/$number");
   final upload = ref.putFile(file);
   final snapshot = await upload;
