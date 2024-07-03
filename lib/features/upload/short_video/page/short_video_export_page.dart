@@ -10,15 +10,15 @@ import 'package:youtube_clone/cores/methods.dart';
 import 'package:youtube_clone/features/upload/short_video/page/short_video_details_page.dart';
 import 'package:youtube_clone/features/upload/short_video/widgets/trim_slinder.dart';
 
-class ShortVideoPage extends StatefulWidget {
+class ShortVideoExportPage extends StatefulWidget {
   final File shortVideoFile;
-  const ShortVideoPage({super.key, required this.shortVideoFile});
+  const ShortVideoExportPage({super.key, required this.shortVideoFile});
 
   @override
-  State<ShortVideoPage> createState() => _ShortVideoPageState();
+  State<ShortVideoExportPage> createState() => _ShortVideoExportPageState();
 }
 
-class _ShortVideoPageState extends State<ShortVideoPage> {
+class _ShortVideoExportPageState extends State<ShortVideoExportPage> {
   late VideoEditorController editorController;
   final isExporting = ValueNotifier<bool>(false);
   final exportingProgress = ValueNotifier<double>(0.0);

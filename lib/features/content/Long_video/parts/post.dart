@@ -6,8 +6,9 @@ import 'package:youtube_clone/cores/screens/error_page.dart';
 import 'package:youtube_clone/cores/screens/loader.dart';
 import 'package:youtube_clone/features/auth/model/user_model.dart';
 import 'package:youtube_clone/features/auth/provider/user_provider.dart';
-import 'package:youtube_clone/features/content/Long_video/parts/video.dart';
+import 'package:youtube_clone/features/content/long_video/parts/video.dart';
 import 'package:youtube_clone/features/upload/long%20video/video_model.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class Post extends ConsumerWidget {
   final VideoModel video;
@@ -67,7 +68,7 @@ class Post extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        "${user.displayName}  ${video.views == 0 ? "No views" : video.views}  a moment ago",
+                        "${user.displayName}  ${video.views == 0 ? "No views" : video.views}  ${timeago.format(video.datePublished)}",
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.blueGrey,

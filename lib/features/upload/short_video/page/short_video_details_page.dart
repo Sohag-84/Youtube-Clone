@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:youtube_clone/cores/widgets/flat_button.dart';
 import 'package:youtube_clone/features/upload/short_video/repository/short_video_repository.dart';
+import 'package:youtube_clone/home_page.dart';
 
 class ShortVideoDetailsPage extends ConsumerStatefulWidget {
   final File video;
@@ -72,6 +73,13 @@ class _ShortVideoDetailsPageState extends ConsumerState<ShortVideoDetailsPage> {
                               video: widget.video.path,
                               datePublished: date,
                             );
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HomePage(),
+                          ),
+                        );
                       }
                       setState(() {
                         isShortVideoUpload = false;

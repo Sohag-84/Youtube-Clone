@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_clone/cores/screens/loader.dart';
-import 'package:youtube_clone/features/content/Long_video/parts/post.dart';
+import 'package:youtube_clone/features/content/long_video/parts/post.dart';
 import 'package:youtube_clone/features/upload/long%20video/video_model.dart';
 
 class LongVideoPage extends StatelessWidget {

@@ -9,11 +9,12 @@ import 'package:youtube_clone/cores/screens/loader.dart';
 import 'package:youtube_clone/cores/widgets/flat_button.dart';
 import 'package:youtube_clone/features/auth/model/user_model.dart';
 import 'package:youtube_clone/features/auth/provider/user_provider.dart';
-import 'package:youtube_clone/features/content/Long_video/parts/post.dart';
-import 'package:youtube_clone/features/content/Long_video/widgets/video_externel_buttons.dart';
+import 'package:youtube_clone/features/content/long_video/parts/post.dart';
+import 'package:youtube_clone/features/content/long_video/widgets/video_externel_buttons.dart';
 import 'package:youtube_clone/features/upload/long%20video/video_model.dart';
 
 import '../../comment/comment_sheet.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class Video extends ConsumerStatefulWidget {
   final VideoModel video;
@@ -214,11 +215,11 @@ class _VideoState extends ConsumerState<Video> {
                       ),
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4, right: 8),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, right: 8),
                     child: Text(
-                      "5 minutes ago",
-                      style: TextStyle(
+                      timeago.format(widget.video.datePublished),
+                      style: const TextStyle(
                         fontSize: 13.4,
                         color: Color(0xff5F5F5F),
                       ),
