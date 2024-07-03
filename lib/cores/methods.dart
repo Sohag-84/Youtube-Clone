@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:youtube_clone/features/upload/long%20video/video_details_page.dart';
+import 'package:youtube_clone/features/upload/short_video/page/short_video_page.dart';
 
 void showErrorSnackBar(String message, context) =>
     ScaffoldMessenger.of(context).showSnackBar(
@@ -27,6 +28,24 @@ Future pickVideo({required BuildContext context}) async {
       MaterialPageRoute(
         builder: (context) => VideoDetailsPage(
           video: videoPath,
+        ),
+      ),
+    );
+  }
+}
+
+///for pick video
+Future pickShortVideo({required BuildContext context}) async {
+  XFile? file = await ImagePicker().pickVideo(
+    source: ImageSource.gallery,
+  );
+  if (file != null) {
+    File videoPath = File(file.path);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ShortVideoPage(
+          shortVideoFile: videoPath,
         ),
       ),
     );
