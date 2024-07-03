@@ -13,7 +13,7 @@ dependencies:
   cached_network_image: ^3.2.3
   cloud_firestore: ^4.8.5
   cupertino_icons: ^1.0.2
-  ffmpeg_kit_flutter: ^6.0.2
+  ffmpeg_kit_flutter: ^6.0.2 #for export video
   firebase_auth: ^4.7.3
   firebase_core: ^2.15.1
   firebase_storage: ^11.2.6

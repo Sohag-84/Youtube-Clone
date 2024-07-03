@@ -1,7 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:flutter/material.dart';
 import 'package:video_editor/video_editor.dart';
+import 'package:youtube_clone/cores/methods.dart';
+import 'package:youtube_clone/features/upload/short_video/page/short_video_details_page.dart';
 import 'package:youtube_clone/features/upload/short_video/widgets/trim_slinder.dart';
 
 class ShortVideoPage extends StatefulWidget {
@@ -14,6 +20,8 @@ class ShortVideoPage extends StatefulWidget {
 
 class _ShortVideoPageState extends State<ShortVideoPage> {
   late VideoEditorController editorController;
+  final isExporting = ValueNotifier<bool>(false);
+  final exportingProgress = ValueNotifier<double>(0.0);
   @override
   void initState() {
     super.initState();
@@ -23,6 +31,52 @@ class _ShortVideoPageState extends State<ShortVideoPage> {
       maxDuration: const Duration(seconds: 60),
     );
     editorController.initialize().then((_) => setState(() {}));
+  }
+
+  Future<void> exportVideo() async {
+    isExporting.value = true;
+    final config = VideoFFmpegVideoEditorConfig(editorController);
+    final execute = await config.getExecuteConfig();
+    final String command = execute.command;
+
+    FFmpegKit.executeAsync(
+      command,
+      (session) async {
+        ///exporting status success or failure
+        final ReturnCode? code = await session.getReturnCode();
+        if (ReturnCode.isSuccess(code)) {
+          ///export the video
+
+          isExporting.value = false;
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ShortVideoDetailsPage(
+                video: widget.shortVideoFile,
+              ),
+            ),
+          );
+        } else {
+          ///show some errors
+          showErrorSnackBar(
+            "Failed, video can't be exported",
+            context,
+          );
+        }
+      },
+      null,
+      (status) {
+        ///to visualy see the exporting video progress
+        exportingProgress.value =
+            config.getFFmpegProgress(status.getTime().toInt());
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    editorController.dispose();
   }
 
   @override
@@ -77,7 +131,7 @@ class _ShortVideoPageState extends State<ShortVideoPage> {
                         borderRadius: BorderRadius.circular(18),
                       ),
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: exportVideo,
                         child: const Text("DONE"),
                       ),
                     ),
