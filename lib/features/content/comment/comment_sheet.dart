@@ -1,6 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
+import 'package:youtube_clone/cores/screens/loader.dart';
 import 'package:youtube_clone/features/auth/provider/user_provider.dart';
+import 'package:youtube_clone/features/content/comment/comment_tile.dart';
+import 'package:youtube_clone/features/upload/comment/comment_model.dart';
 import 'package:youtube_clone/features/upload/comment/comment_repository.dart';
 import 'package:youtube_clone/features/upload/long%20video/video_model.dart';
 
@@ -35,7 +40,9 @@ class _CommentSheetState extends ConsumerState<CommentSheet> {
                 ),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pop(context);
+                },
                 icon: const Icon(Icons.close),
               ),
             ],
@@ -48,7 +55,41 @@ class _CommentSheetState extends ConsumerState<CommentSheet> {
             "Remember to keep comments respectful and to follow our community and guideline",
           ),
         ),
-        const Spacer(),
+        const Gap(10),
+
+        ///fetched comment list
+        Expanded(
+          child: StreamBuilder(
+            stream: FirebaseFirestore.instance
+                .collection('comments')
+                .where('videoId', isEqualTo: widget.video.videoId)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Loader();
+              } else {
+                final commentMap = snapshot.data!.docs;
+                final comment = commentMap
+                    .map((comment) => CommentModel.fromMap(comment.data()))
+                    .toList();
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: comment.length,
+                  itemBuilder: (context, index) {
+                    return CommentTile(
+                      profilePic: comment[index].profilePic,
+                      displayName: comment[index].displayName,
+                      commentText: comment[index].commentText,
+                    );
+                  },
+                );
+              }
+            },
+          ),
+        ),
+
+        //const Spacer(),
         Padding(
           padding: const EdgeInsets.only(left: 8.0, right: 8, bottom: 12),
           child: Row(
@@ -72,7 +113,10 @@ class _CommentSheetState extends ConsumerState<CommentSheet> {
                   ),
                 ),
               ),
+
               const Spacer(),
+
+              ///send comment
               IconButton(
                 onPressed: () async {
                   if (commentController.text.trim().isNotEmpty) {
