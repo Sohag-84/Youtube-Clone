@@ -147,10 +147,11 @@ class _UserChannelPageState extends State<UserChannelPage> {
                             itemCount: video.length,
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    mainAxisSpacing: 5,
-                                    crossAxisSpacing: 5,
-                                    mainAxisExtent: 320),
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 5,
+                              crossAxisSpacing: 5,
+                              mainAxisExtent: 320,
+                            ),
                             itemBuilder: (context, index) {
                               if (video.isNotEmpty) {
                                 return Post(video: video[index]);
