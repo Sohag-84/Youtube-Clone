@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -27,6 +28,12 @@ class Post extends ConsumerWidget {
             builder: (context) => Video(video: video),
           ),
         );
+        FirebaseFirestore.instance
+            .collection("videos")
+            .doc(video.videoId)
+            .update({
+          "views": FieldValue.increment(1),
+        });
       },
       child: Column(
         children: [
@@ -68,7 +75,7 @@ class Post extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        "${user.displayName}  ${video.views == 0 ? "No views" : video.views}  ${timeago.format(video.datePublished)}",
+                        "${user.displayName}  ${video.views == 0 ? "No views" : "${video.views} views"}  ${timeago.format(video.datePublished)}",
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.blueGrey,
