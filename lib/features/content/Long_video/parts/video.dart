@@ -8,7 +8,6 @@ import 'package:youtube_clone/cores/colors.dart';
 import 'package:youtube_clone/cores/screens/error_page.dart';
 import 'package:youtube_clone/cores/screens/loader.dart';
 import 'package:youtube_clone/cores/widgets/flat_button.dart';
-import 'package:youtube_clone/features/auth/model/user_model.dart';
 import 'package:youtube_clone/features/auth/provider/user_provider.dart';
 import 'package:youtube_clone/features/channel/user%20channel/repository/subscribe_repository.dart';
 import 'package:youtube_clone/features/content/long_video/parts/post.dart';
@@ -31,7 +30,6 @@ class Video extends ConsumerStatefulWidget {
 
 class _VideoState extends ConsumerState<Video> {
   late VideoPlayerController _controller;
-
   bool isShowIcons = false;
   bool isPlaying = false;
 
@@ -87,8 +85,12 @@ class _VideoState extends ConsumerState<Video> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<UserModel> userModel =
-        ref.watch(anyUserDataProvider(widget.video.userId));
+    final userModelStream = ref.watch(anyUserDataProvider(widget.video.userId));
+    final videoDocumentStream = FirebaseFirestore.instance
+        .collection('videos')
+        .doc(widget.video.videoId)
+        .snapshots();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.grey,
@@ -251,11 +253,22 @@ class _VideoState extends ConsumerState<Video> {
               ),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.grey,
-                    backgroundImage:
-                        CachedNetworkImageProvider(userModel.value!.profilePic),
+                  userModelStream.when(
+                    data: (userModel) => CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.grey,
+                      backgroundImage:
+                          CachedNetworkImageProvider(userModel.profilePic),
+                    ),
+                    loading: () => const CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.grey,
+                    ),
+                    error: (error, stack) => const CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.grey,
+                      child: Icon(Icons.error),
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(
@@ -265,21 +278,29 @@ class _VideoState extends ConsumerState<Video> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          userModel.value!.displayName,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
+                        userModelStream.when(
+                          data: (userModel) => Text(
+                            userModel.displayName,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
+                          loading: () => const Text("Loading..."),
+                          error: (error, stack) => const Text("Error"),
                         ),
-                        Text(
-                          userModel.value!.subscriptions.isEmpty
-                              ? "No subscription"
-                              : "${userModel.value!.subscriptions.length} Subscriptions",
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
+                        userModelStream.when(
+                          data: (userModel) => Text(
+                            userModel.subscriptions.isEmpty
+                                ? "No subscription"
+                                : "${userModel.subscriptions.length} Subscriptions",
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
+                          loading: () => const Text("Loading..."),
+                          error: (error, stack) => const Text("Error"),
                         ),
                       ],
                     ),
@@ -293,14 +314,17 @@ class _VideoState extends ConsumerState<Video> {
                       child: FlatButton(
                         text: "Subscribe",
                         onPressed: () async {
-                          await ref
-                              .watch(subscribeChannelProvider)
-                              .subscribeChannel(
-                                userId: userModel.value!.userId,
-                                currentUserId:
-                                    FirebaseAuth.instance.currentUser!.uid,
-                                subscriptions: userModel.value!.subscriptions,
-                              );
+                          final userModel = userModelStream.value;
+                          if (userModel != null) {
+                            await ref
+                                .watch(subscribeChannelProvider)
+                                .subscribeChannel(
+                                  userId: userModel.userId,
+                                  currentUserId:
+                                      FirebaseAuth.instance.currentUser!.uid,
+                                  subscriptions: userModel.subscriptions,
+                                );
+                          }
                         },
                         colour: Colors.black,
                       ),
@@ -311,70 +335,83 @@ class _VideoState extends ConsumerState<Video> {
             ),
 
             ///like, share & download button
-            Padding(
-              padding: const EdgeInsets.only(left: 9, top: 10.5, right: 9),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    ///like & dislike button
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 15,
-                        vertical: 6,
-                      ),
-                      decoration: const BoxDecoration(
-                        color: softBlueGreyBackGround,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(25),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          GestureDetector(
-                            onTap: likeVideo,
-                            child: Icon(
-                              Icons.thumb_up,
-                              size: 15.5,
-                              color: widget.video.likes.contains(
-                                      FirebaseAuth.instance.currentUser!.uid)
-                                  ? Colors.blue
-                                  : Colors.black,
+            StreamBuilder<DocumentSnapshot>(
+              stream: videoDocumentStream,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData || snapshot.data == null) {
+                  return const ErrorPage();
+                }
+
+                final videoData = snapshot.data!.data() as Map<String, dynamic>;
+                final videoLikes = List<String>.from(videoData['likes'] ?? []);
+                final videoLikesCount = videoLikes.length;
+
+                return Padding(
+                  padding: const EdgeInsets.only(left: 9, top: 10.5, right: 9),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        ///like & dislike button
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 6,
+                          ),
+                          decoration: const BoxDecoration(
+                            color: softBlueGreyBackGround,
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(25),
                             ),
                           ),
-                          Text(
-                            "  ${widget.video.likes.length}",
-                            style: const TextStyle(fontSize: 10),
+                          child: Row(
+                            children: [
+                              GestureDetector(
+                                onTap: likeVideo,
+                                child: Icon(
+                                  Icons.thumb_up,
+                                  size: 15.5,
+                                  color: videoLikes.contains(FirebaseAuth
+                                          .instance.currentUser!.uid)
+                                      ? Colors.blue
+                                      : Colors.black,
+                                ),
+                              ),
+                              Text(
+                                "  $videoLikesCount",
+                                style: const TextStyle(fontSize: 10),
+                              ),
+                              const SizedBox(width: 15),
+                              const Icon(
+                                Icons.thumb_down,
+                                size: 15.5,
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 15),
-                          const Icon(
-                            Icons.thumb_down,
-                            size: 15.5,
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.only(left: 9, right: 9),
+                          child: VideoExtraButton(
+                            text: "Share",
+                            iconData: Icons.share,
                           ),
-                        ],
-                      ),
+                        ),
+                        const VideoExtraButton(
+                          text: "Remix",
+                          iconData: Icons.analytics_outlined,
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.only(left: 9, right: 9),
+                          child: VideoExtraButton(
+                            text: "Download",
+                            iconData: Icons.download,
+                          ),
+                        ),
+                      ],
                     ),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 9, right: 9),
-                      child: VideoExtraButton(
-                        text: "Share",
-                        iconData: Icons.share,
-                      ),
-                    ),
-                    const VideoExtraButton(
-                      text: "Remix",
-                      iconData: Icons.analytics_outlined,
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 9, right: 9),
-                      child: VideoExtraButton(
-                        text: "Download",
-                        iconData: Icons.download,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 10),
 
