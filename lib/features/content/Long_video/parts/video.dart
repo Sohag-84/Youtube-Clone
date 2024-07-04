@@ -10,6 +10,7 @@ import 'package:youtube_clone/cores/screens/loader.dart';
 import 'package:youtube_clone/cores/widgets/flat_button.dart';
 import 'package:youtube_clone/features/auth/model/user_model.dart';
 import 'package:youtube_clone/features/auth/provider/user_provider.dart';
+import 'package:youtube_clone/features/channel/user%20channel/repository/subscribe_repository.dart';
 import 'package:youtube_clone/features/content/long_video/parts/post.dart';
 import 'package:youtube_clone/features/content/long_video/widgets/video_externel_buttons.dart';
 import 'package:youtube_clone/features/content/long_video/widgets/video_first_comment.dart';
@@ -240,6 +241,8 @@ class _VideoState extends ConsumerState<Video> {
                 ],
               ),
             ),
+
+            ///subscribe button
             Padding(
               padding: const EdgeInsets.only(
                 left: 12,
@@ -289,7 +292,16 @@ class _VideoState extends ConsumerState<Video> {
                       padding: const EdgeInsets.only(right: 6),
                       child: FlatButton(
                         text: "Subscribe",
-                        onPressed: () {},
+                        onPressed: () async {
+                          await ref
+                              .watch(subscribeChannelProvider)
+                              .subscribeChannel(
+                                userId: userModel.value!.userId,
+                                currentUserId:
+                                    FirebaseAuth.instance.currentUser!.uid,
+                                subscriptions: userModel.value!.subscriptions,
+                              );
+                        },
                         colour: Colors.black,
                       ),
                     ),

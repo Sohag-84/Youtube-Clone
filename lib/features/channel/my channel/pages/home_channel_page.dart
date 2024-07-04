@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youtube_clone/cores/screens/error_page.dart';
 import 'package:youtube_clone/cores/screens/loader.dart';
-import 'package:youtube_clone/features/channel/provider/channel_provider.dart';
+import 'package:youtube_clone/features/channel/user%20channel/provider/channel_provider.dart';
 import 'package:youtube_clone/features/content/long_video/parts/post.dart';
 
 class HomeChannelPage extends StatelessWidget {
