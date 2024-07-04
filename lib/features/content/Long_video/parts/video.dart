@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_clone/cores/colors.dart';
 import 'package:youtube_clone/cores/screens/error_page.dart';
@@ -77,6 +78,11 @@ class _VideoState extends ConsumerState<Video> {
         );
   }
 
+  ///for share videos
+  void shareVideo() async {
+    await Share.share(widget.video.videoUrl, subject: widget.video.title);
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -97,6 +103,8 @@ class _VideoState extends ConsumerState<Video> {
         elevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(200),
+
+          ///video play section
           child: _controller.value.isInitialized
               ? SizedBox(
                   height: 200,
@@ -389,11 +397,16 @@ class _VideoState extends ConsumerState<Video> {
                             ],
                           ),
                         ),
-                        const Padding(
-                          padding: EdgeInsets.only(left: 9, right: 9),
-                          child: VideoExtraButton(
-                            text: "Share",
-                            iconData: Icons.share,
+
+                        ///share the vidoe
+                        GestureDetector(
+                          onTap: shareVideo,
+                          child: const Padding(
+                            padding: EdgeInsets.only(left: 9, right: 9),
+                            child: VideoExtraButton(
+                              text: "Share",
+                              iconData: Icons.share,
+                            ),
                           ),
                         ),
                         const VideoExtraButton(
