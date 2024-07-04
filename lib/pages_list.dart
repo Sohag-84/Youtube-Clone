@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:youtube_clone/features/auth/pages/logout_page.dart';
 import 'package:youtube_clone/features/content/long_video/long_video_page.dart';
 import 'package:youtube_clone/search/page/search_page.dart';
 
@@ -9,5 +10,5 @@ List<Widget> pages = const [
   ShortVideoPage(),
   Center(child: Text("Upload")),
   SearchPage(),
-  Center(child: Text("Home")),
+  LogoutPage(),
 ];
