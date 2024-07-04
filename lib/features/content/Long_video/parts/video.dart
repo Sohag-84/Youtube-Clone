@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
@@ -14,6 +15,7 @@ import 'package:youtube_clone/features/content/long_video/widgets/video_externel
 import 'package:youtube_clone/features/content/long_video/widgets/video_first_comment.dart';
 import 'package:youtube_clone/features/upload/comment/comment_provider.dart';
 import 'package:youtube_clone/features/upload/long%20video/video_model.dart';
+import 'package:youtube_clone/features/upload/long%20video/video_repository.dart';
 
 import '../../comment/comment_sheet.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -66,6 +68,14 @@ class _VideoState extends ConsumerState<Video> {
     Duration position = _controller.value.position;
     position = position + const Duration(seconds: 2);
     _controller.seekTo(position);
+  }
+
+  likeVideo() async {
+    await ref.watch(longVideoProvider).likeVideo(
+          likes: widget.video.likes,
+          videoId: widget.video.videoId,
+          currentUserId: FirebaseAuth.instance.currentUser!.uid,
+        );
   }
 
   @override
@@ -310,11 +320,19 @@ class _VideoState extends ConsumerState<Video> {
                       child: Row(
                         children: [
                           GestureDetector(
-                            onTap: () {},
-                            child: const Icon(
+                            onTap: likeVideo,
+                            child: Icon(
                               Icons.thumb_up,
                               size: 15.5,
+                              color: widget.video.likes.contains(
+                                      FirebaseAuth.instance.currentUser!.uid)
+                                  ? Colors.blue
+                                  : Colors.black,
                             ),
+                          ),
+                          Text(
+                            "  ${widget.video.likes.length}",
+                            style: const TextStyle(fontSize: 10),
                           ),
                           const SizedBox(width: 15),
                           const Icon(

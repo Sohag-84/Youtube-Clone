@@ -40,4 +40,21 @@ class VideoRepository {
       "videos": FieldValue.increment(1),
     });
   }
+
+  Future<void> likeVideo({
+    required List? likes,
+    required String videoId,
+    required String currentUserId,
+  }) async {
+    if (!likes!.contains(currentUserId)) {
+      FirebaseFirestore.instance.collection('videos').doc(videoId).update({
+        "likes": FieldValue.arrayUnion([currentUserId]),
+      });
+    }
+    if (likes.contains(currentUserId)) {
+      FirebaseFirestore.instance.collection('videos').doc(videoId).update({
+        "likes": FieldValue.arrayRemove([currentUserId]),
+      });
+    }
+  }
 }
