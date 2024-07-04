@@ -1,9 +1,10 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:youtube_clone/features/upload/comment/comment_model.dart';
 
 class VideoFirstComment extends StatelessWidget {
-  const VideoFirstComment({super.key});
+  final List<CommentModel> comments;
+  const VideoFirstComment({super.key, required this.comments});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +19,7 @@ class VideoFirstComment extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 5),
-            Text("${0}"),
+            Text("${comments.length}"),
           ],
         ),
         Padding(
@@ -28,13 +29,16 @@ class VideoFirstComment extends StatelessWidget {
               CircleAvatar(
                 radius: 14,
                 backgroundColor: Colors.grey,
+                backgroundImage: CachedNetworkImageProvider(
+                  comments[0].profilePic,
+                ),
               ),
               const SizedBox(width: 7),
-              SizedBox(
-                width: 280,
+              Expanded(
                 child: Text(
-                  "First comment on the video",
-                  maxLines: 2,
+                  comments[0].commentText,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontWeight: FontWeight.w400,
                     fontSize: 13.5,

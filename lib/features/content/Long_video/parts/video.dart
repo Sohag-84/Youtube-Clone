@@ -11,6 +11,8 @@ import 'package:youtube_clone/features/auth/model/user_model.dart';
 import 'package:youtube_clone/features/auth/provider/user_provider.dart';
 import 'package:youtube_clone/features/content/long_video/parts/post.dart';
 import 'package:youtube_clone/features/content/long_video/widgets/video_externel_buttons.dart';
+import 'package:youtube_clone/features/content/long_video/widgets/video_first_comment.dart';
+import 'package:youtube_clone/features/upload/comment/comment_provider.dart';
 import 'package:youtube_clone/features/upload/long%20video/video_model.dart';
 
 import '../../comment/comment_sheet.dart';
@@ -285,12 +287,15 @@ class _VideoState extends ConsumerState<Video> {
                 ],
               ),
             ),
+
+            ///like, share & download button
             Padding(
               padding: const EdgeInsets.only(left: 9, top: 10.5, right: 9),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
+                    ///like & dislike button
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 15,
@@ -358,11 +363,31 @@ class _VideoState extends ConsumerState<Video> {
                   horizontal: 8,
                   vertical: 12,
                 ),
-                height: 45,
+                padding: const EdgeInsets.all(5),
+                height: 70,
                 width: 200,
                 decoration: BoxDecoration(
                   color: Colors.grey.shade300,
                   borderRadius: BorderRadius.circular(15),
+                ),
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    return ref
+                        .watch(commentProvider(widget.video.videoId))
+                        .when(
+                          data: (comments) {
+                            if (comments.isEmpty) {
+                              return const SizedBox();
+                            } else {
+                              return VideoFirstComment(
+                                comments: comments,
+                              );
+                            }
+                          },
+                          error: (error, stackTrace) => const ErrorPage(),
+                          loading: () => const Loader(),
+                        );
+                  },
                 ),
               ),
             ),
