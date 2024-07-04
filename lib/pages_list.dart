@@ -5,10 +5,9 @@ import 'package:youtube_clone/search/page/search_page.dart';
 import 'features/content/short video/page/short_video_page.dart';
 
 List<Widget> pages = const [
-  SearchPage(),
   LongVideoPage(),
   ShortVideoPage(),
   Center(child: Text("Upload")),
-  Center(child: Text("Search")),
-  //Center(child: Text("Home")),
+  SearchPage(),
+  Center(child: Text("Home")),
 ];
