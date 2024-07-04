@@ -34,5 +34,10 @@ class VideoRepository {
     );
 
     await firestore.collection('videos').doc(videoId).set(video.toMap());
+
+    ///update video count
+    await firestore.collection('users').doc(userId).update({
+      "videos": FieldValue.increment(1),
+    });
   }
 }
