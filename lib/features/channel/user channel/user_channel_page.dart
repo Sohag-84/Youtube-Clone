@@ -1,9 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:youtube_clone/cores/screens/error_page.dart';
+import 'package:youtube_clone/cores/screens/loader.dart';
 import 'package:youtube_clone/cores/widgets/flat_button.dart';
+import 'package:youtube_clone/features/auth/provider/user_provider.dart';
 
 class UserChannelPage extends StatefulWidget {
-  const UserChannelPage({super.key});
+  final String userId;
+  const UserChannelPage({super.key, required this.userId});
 
   @override
   State<UserChannelPage> createState() => _UserChannelPageState();
@@ -15,96 +21,114 @@ class _UserChannelPageState extends State<UserChannelPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ///background image
-            Image.asset(
-              "assets/images/flutter background.png",
-              height: 170,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-            const Gap(10),
-
-            ///channel info
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 40,
-                    backgroundColor: Colors.grey,
-                  ),
-                  const Gap(10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        child: Consumer(
+          builder: (context, ref, child) {
+            return ref.watch(anyUserDataProvider(widget.userId)).when(
+                  data: (data) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text(
-                        "Injamul haq sohag",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      ///background image
+                      Image.asset(
+                        "assets/images/flutter background.png",
+                        height: 170,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
                       ),
-                      const Text(
-                        "@raiyan",
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.blueGrey,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      RichText(
-                        text: const TextSpan(
-                          style: TextStyle(
-                            color: Colors.blueGrey,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
+                      const Gap(10),
+
+                      ///channel info
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Row(
                           children: [
-                            TextSpan(text: "NO Subscriptions "),
-                            TextSpan(text: "NO Videos"),
+                            CircleAvatar(
+                              radius: 40,
+                              backgroundColor: Colors.grey,
+                              backgroundImage:
+                                  CachedNetworkImageProvider(data.profilePic),
+                            ),
+                            const Gap(10),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  data.displayName,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  data.username,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.blueGrey,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                      color: Colors.blueGrey,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    children: [
+                                      TextSpan(
+                                        text: data.subscriptions.isEmpty
+                                            ? "NO Subscriptions "
+                                            : "${data.subscriptions.length} Subscriptions",
+                                      ),
+                                      TextSpan(
+                                        text: data.videos == 0
+                                            ? "NO Videos"
+                                            : "${data.videos} Videos",
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
 
-            ///subscribe button
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 10.0,
-                top: 20,
-                right: 10,
-              ),
-              child: FlatButton(
-                text: "SUBSCRIBE",
-                onPressed: () {},
-                colour: Colors.black,
-              ),
-            ),
-
-            haveVideos
-                ? const SizedBox()
-                : Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: MediaQuery.sizeOf(context).height * 0.2,
-                      ),
-                      child: const Text(
-                        "No video",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                      ///subscribe button
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 10.0,
+                          top: 20,
+                          right: 10,
+                        ),
+                        child: FlatButton(
+                          text: "SUBSCRIBE",
+                          onPressed: () {},
+                          colour: Colors.black,
                         ),
                       ),
-                    ),
+
+                      data.videos != 0
+                          ? const SizedBox()
+                          : Center(
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                  top: MediaQuery.sizeOf(context).height * 0.2,
+                                ),
+                                child: const Text(
+                                  "No video",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                    ],
                   ),
-          ],
+                  error: (error, stackTrace) => const ErrorPage(),
+                  loading: () => const Loader(),
+                );
+          },
         ),
       ),
     );
